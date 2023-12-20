@@ -7,7 +7,7 @@ const url = require('url');
 const minimist = require('minimist');
 
 const args = minimist(process.argv.slice(2));
-const port = args.port || 3000; // Default port is 3000
+const port = args.port || 5000; // Default port is 3000
 
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
