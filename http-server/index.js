@@ -1,38 +1,61 @@
-// index.js
+const http = require('http')
+const fs = require('fs')
+const args = require('minimist')(process.argv.slice(2), {
+  default: {
+    port: 5000
+  }
+})
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const url = require('url');
-const minimist = require('minimist');
+console.log(args)
+let homeText = ''
+let projectText = ''
+let registrationText = ''
 
-const args = minimist(process.argv.slice(2));
-const port = args.port || 5000; // Default port is 3000
+fs.readFile('home.html', (err, home) => {
+  if (err) {
+    throw err
+  }
+  homeText = home
+})
 
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
+fs.readFile('project.html', (err, project) => {
+  if (err) {
+    throw err
+  }
+  projectText = project
+})
 
-    // Handle /registration route
-    if (parsedUrl.pathname === '/registration') {
-        const filePath = path.join(__dirname, 'registration.html');
-        fs.readFile(filePath, 'utf8', (err, data) => {
-            if (err) {
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('Internal Server Error');
-            } else {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
-                res.end(data);
-            }
-        });
-    } else if (parsedUrl.pathname === '/') {
-        // Handle other routes or serve the default page (project.html)
-        // Add your existing route handling logic here
-    } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Not Found');
+fs.readFile('registration.html', (err, registration) => {
+  if (err) {
+    throw err
+  }
+  registrationText = registration
+})
+
+http
+  .createServer((request, response) => {
+    const url = request.url
+    // eslint-disable-next-line quotes
+    response.writeHeader(200, { 'Content-Type': "text/html" })
+    switch (url) {
+      // eslint-disable-next-line quotes
+      case "/project":
+        response.write(projectText)
+        response.end()
+        break
+
+      // eslint-disable-next-line quotes
+      case "/registration":
+        response.write(registrationText)
+        response.end()
+        break
+
+      default:
+        response.write(homeText)
+        response.end()
+        break
     }
-});
-
-server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+  })
+  .listen(args.port, function () {
+    console.log('Application running on port: ' + args.port)
+  })
